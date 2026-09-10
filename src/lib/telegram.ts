@@ -6,7 +6,7 @@ export async function sendTelegramNotification(response: ConfessionResponse): Pr
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
   if (!token || !chatId) {
-    console.warn('TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing. Notification skipped.');
+    console.warn('[Telegram] TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing in env. Notification skipped.');
     return false;
   }
 
@@ -28,6 +28,7 @@ ${response.message ? `💬 *Pesan Opsional*: "${response.message}"` : ''}
 `.trim();
 
   try {
+    console.log('[Telegram] Sending fetch request to Telegram API...');
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: {
@@ -42,13 +43,14 @@ ${response.message ? `💬 *Pesan Opsional*: "${response.message}"` : ''}
 
     if (!res.ok) {
       const errJson = await res.json().catch(() => ({}));
-      console.error('Failed to send Telegram notification:', errJson);
+      console.error('[Telegram] API error response:', errJson);
       return false;
     }
 
+    console.log('[Telegram] Notification successfully sent!');
     return true;
   } catch (err) {
-    console.error('Error sending Telegram notification:', err);
+    console.error('[Telegram] Network/Fetch Error:', err);
     return false;
   }
 }

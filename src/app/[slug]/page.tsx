@@ -27,25 +27,19 @@ export default function ConfessionSlugPage() {
     }
   }, []);
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const handleOpenLanding = () => {
     setStep('question');
+    setSubmitError(null);
   };
 
   const handleAnswerSubmit = async (answer: AnswerType, dodgedCount: number) => {
-    setUserAnswer(answer);
     setIsSubmitting(true);
+    setSubmitError(null);
 
-    // Save to localStorage anti-duplicate flag
     try {
-      localStorage.setItem('youker_confession_answer', answer);
-      localStorage.setItem('youker_confession_dodged', dodgedCount.toString());
-    } catch (e) {
-      console.warn('localStorage access warning:', e);
-    }
-
-    // Submit to server API
-    try {
-      await fetch('/api/response', {
+      const res = await fetch('/api/response', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -53,13 +47,35 @@ export default function ConfessionSlugPage() {
           dodged_count: dodgedCount,
         }),
       });
-    } catch (err) {
-      console.error('Error submitting response:', err);
-    } finally {
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        const errorMsg = data?.error || data?.details || 'Gagal mengirim respons ke server. Silakan periksa koneksi/kredensial.';
+        console.error('Submission failed:', errorMsg);
+        setSubmitError(errorMsg);
+        setIsSubmitting(false);
+        return; // DO NOT proceed to result screen or save to localStorage
+      }
+
+      // ONLY save to localStorage anti-duplicate flag AFTER successful server confirmation
+      try {
+        localStorage.setItem('youker_confession_answer', answer);
+        localStorage.setItem('youker_confession_dodged', dodgedCount.toString());
+      } catch (e) {
+        console.warn('localStorage access warning:', e);
+      }
+
+      setUserAnswer(answer);
       setIsSubmitting(false);
       setStep('result');
+    } catch (err: any) {
+      console.error('Error submitting response:', err);
+      setSubmitError(err?.message || 'Terjadi kesalahan jaringan.');
+      setIsSubmitting(false);
     }
   };
+
 
   const handleResetClient = () => {
     try {
@@ -71,7 +87,17 @@ export default function ConfessionSlugPage() {
   };
 
   return (
-    <div className="w-full min-h-[100dvh] flex items-center justify-center bg-[#eeedf7]">
+    <div className="w-full min-h-[100dvh] flex flex-col items-center justify-center bg-[#eeedf7] relative px-4">
+      {submitError && (
+        <div className="fixed top-4 z-50 max-w-[400px] w-full bg-rose-100 border border-rose-300 text-rose-800 px-4 py-3 rounded-xl shadow-lg flex items-center justify-between text-[13px]">
+          <div className="flex items-center space-x-2">
+            <span className="font-bold">⚠️ Gagal:</span>
+            <span>{submitError}</span>
+          </div>
+          <button onClick={() => setSubmitError(null)} className="font-bold text-rose-900 ml-2">✕</button>
+        </div>
+      )}
+
       {step === 'landing' && <LandingScreen onOpen={handleOpenLanding} />}
 
       {step === 'question' && (
@@ -89,4 +115,5 @@ export default function ConfessionSlugPage() {
       )}
     </div>
   );
+
 }
