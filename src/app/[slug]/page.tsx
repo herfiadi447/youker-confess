@@ -6,6 +6,7 @@ import { LandingScreen } from '@/components/screens/LandingScreen';
 import { QuestionScreen } from '@/components/screens/QuestionScreen';
 import { AnswerYesScreen } from '@/components/screens/AnswerYesScreen';
 import { AnswerNoScreen } from '@/components/screens/AnswerNoScreen';
+import { CustomDialog } from '@/components/CustomDialog';
 import { AnswerType } from '@/types/confession';
 
 type FlowStep = 'landing' | 'question' | 'result';
@@ -17,6 +18,13 @@ export default function ConfessionSlugPage() {
   const [step, setStep] = useState<FlowStep>('landing');
   const [userAnswer, setUserAnswer] = useState<AnswerType | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [dialogInfo, setDialogInfo] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message: string;
+    icon?: string;
+  } | null>(null);
 
   useEffect(() => {
     // Check localStorage for prior completion
@@ -107,13 +115,39 @@ export default function ConfessionSlugPage() {
       {step === 'result' && (
         <>
           {userAnswer === 'yes' ? (
-            <AnswerYesScreen onClose={() => alert('Terima kasih banyak! ❤️')} />
+            <AnswerYesScreen
+              onClose={() =>
+                setDialogInfo({
+                  isOpen: true,
+                  title: 'Terima Kasih Banyak! ❤️',
+                  message: 'Pesan dan perasaanmu telah tersimpan dengan indah.',
+                  icon: 'favorite',
+                })
+              }
+            />
           ) : (
-            <AnswerNoScreen onClose={() => alert('Terima kasih atas waktunya!')} />
+            <AnswerNoScreen
+              onClose={() =>
+                setDialogInfo({
+                  isOpen: true,
+                  title: 'Terima Kasih',
+                  message: 'Terima kasih atas waktu dan kejujuranmu. Setiap perasaan sangat berharga.',
+                  icon: 'mark_email_read',
+                })
+              }
+            />
           )}
         </>
       )}
+
+      <CustomDialog
+        isOpen={Boolean(dialogInfo?.isOpen)}
+        title={dialogInfo?.title}
+        message={dialogInfo?.message || ''}
+        icon={dialogInfo?.icon}
+        onClose={() => setDialogInfo(null)}
+      />
     </div>
   );
-
 }
+

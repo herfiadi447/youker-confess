@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { CONFESSION_CONFIG } from '@/config/confession';
 import { ConfessionResponse } from '@/types/confession';
+import { CustomDialog } from '@/components/CustomDialog';
+
 
 export const AdminDashboard: React.FC = () => {
   const [pin, setPin] = useState('');
@@ -68,16 +70,26 @@ export const AdminDashboard: React.FC = () => {
     }, 2000);
   };
 
+  const [dialogInfo, setDialogInfo] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message: string;
+    icon?: string;
+  } | null>(null);
+
   const handleResetSession = () => {
-    const confirmed = confirm('Apakah Anda yakin ingin mengatur ulang data sesi penerima di perangkat ini?');
-    if (confirmed) {
-      try {
-        localStorage.removeItem('youker_confession_answer');
-        localStorage.removeItem('youker_confession_dodged');
-      } catch (e) {}
-      alert('Sesi lokal berhasil disetel ulang.');
-    }
+    try {
+      localStorage.removeItem('youker_confession_answer');
+      localStorage.removeItem('youker_confession_dodged');
+    } catch (e) {}
+    setDialogInfo({
+      isOpen: true,
+      title: 'Sesi Disetel Ulang',
+      message: 'Sesi lokal pada perangkat ini telah berhasil disetel ulang.',
+      icon: 'restart_alt',
+    });
   };
+
 
   const latestResponse = responses.length > 0 ? responses[0] : null;
 
@@ -391,6 +403,15 @@ export const AdminDashboard: React.FC = () => {
           </section>
         )}
       </main>
+
+      <CustomDialog
+        isOpen={Boolean(dialogInfo?.isOpen)}
+        title={dialogInfo?.title}
+        message={dialogInfo?.message || ''}
+        icon={dialogInfo?.icon}
+        onClose={() => setDialogInfo(null)}
+      />
     </div>
   );
 };
+
