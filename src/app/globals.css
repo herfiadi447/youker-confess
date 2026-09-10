@@ -1,26 +1,38 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root {
+  --background: #fbf8ff;
+  --surface-canvas: #FCFAF9;
+  --on-background: #1a1b22;
+  --primary: #b80035;
+  --primary-container: #e11d48;
+  --on-primary: #ffffff;
+  --on-primary-container: #fffaf9;
+  --text-primary: #1C1917;
+  --text-muted: #78716C;
+  --text-soft: #A8A29E;
+  --border-subtle: #F3E8E8;
+  --border-muted: #E4DCDC;
+  --surface-card: #FFFFFF;
+  --surface-container-low: #f4f2fd;
+  --surface-container-high: #e8e7f1;
+  --surface-container-highest: #e3e1ec;
+  --surface-tint: #FFF1F2;
+}
+
+html {
+  background-color: #eeedf7;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }

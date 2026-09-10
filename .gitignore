@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# sensitive files & images
+bot_token.png
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
